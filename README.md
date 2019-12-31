@@ -1,3 +1,9 @@
-This is an filter which some component was inspired by bloomfilter and added some expire feature to forbid the defect of bloomfilter.
+A filter which has expire feature and efficiency are compareable with bloomfilter.
 
-keyword: bitmap matrix expire automatic configuration
+keyword: bitmap matrix expire automatic configuration.
+
+#### Configurations:
+
+
+
+
