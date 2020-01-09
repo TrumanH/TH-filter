@@ -1,5 +1,11 @@
-from .setting import FILTER_BIT,FILTER_HASH_NUMBER
+# from .setting import FILTER_BIT,FILTER_HASH_NUMBER
+import FILTER_BIT,FILTER_HASH_NUMBER = 12, 6
+# bitmap size : 2**FILTER_BIT, number of hash functions(how many times to setbit when insert a new feature): FILTER_HASH_NUMBER
 
+"""
+Defines how to insert(method insert) a new feature into bitmap and 
+how to judge(method exists) a feature have insert before(already existd)
+"""
 # define your HashMap method
 class HashMap(object):
     def __init__(self, m, seed):
@@ -8,7 +14,7 @@ class HashMap(object):
     
     def hash(self, value):
         """
-        Hash Algorithm, could use another alternatively
+        Hash Algorithm, could use another algorethm alternatively
         :param value: Value
         :return: Hash Value
         """
@@ -50,7 +56,7 @@ class Filter(object):
     
     def insert(self, value):
         """
-        add value to bloom
+        Insert a new value into (Redis)bitmap
         :param value:
         :return:
         """
