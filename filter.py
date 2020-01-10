@@ -63,3 +63,16 @@ class Filter(object):
         for f in self.maps:
             offset = f.hash(value)
             self.server.setbit(self.key, offset, 1)
+    
+    def output(self, value):
+        """
+        Calculate a new value's offsets(number equal to FILTER_HASH_NUMBER)
+        :param value: fingerprint(a string)
+        :return: offsets of a new value would set in
+        """
+        _offsets = []
+        for f in self.maps:
+            offset = f.hash(value)
+            _offsets.append(offset)
+        return _offsets
+        
