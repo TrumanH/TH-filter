@@ -4,10 +4,11 @@
 
 """Some are invoke from scrapy.utils.request"""
 
+import six
 import hashlib 
 import weakref
 
-fingerprint_cache = weakref.WeakKeyDictionary()
+_fingerprint_cache = weakref.WeakKeyDictionary()
 
 def request_fingerprint(request, include_headers=None):
     """
