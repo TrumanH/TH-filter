@@ -2,6 +2,8 @@
 # @Time    : 2019/1/9 10:52
 # @Author  : Truman He
 
+"""Some are invoke from scrapy.utils.request"""
+
 import hashlib 
 import weakref
 
@@ -41,7 +43,7 @@ def request_fingerprint(request, include_headers=None):
     if include_headers not in cache:
         fp = hashlib.sha1()
         fp.update(to_bytes(request.method))
-        fp.update(to_bytes(canonicalize_url(request.url)))
+        fp.update(to_bytes(request.url))    # fp.update(to_bytes(canonicalize_url(request.url)))
         fp.update(request.body or b'')
         if include_headers:
             for hdr in include_headers:
