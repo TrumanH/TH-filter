@@ -21,16 +21,15 @@ keyword: bitmap matrix expire automatic configuration.
 内存里同时存在两个 bitmap:   
 一个为今天的today(bitmap)，一个为前期的history(bitmap)；    
 
-bitmap1则作为实时使用的bitmap根据使用常常更新，同时每到过期点(00:0000)
-初始化(全零)大更新一次。
+bitmap1(today)则作为实时使用的bitmap根据使用常常更新，同时每到周期时间点
+初始化更新一次。
 
-history(bitmap)每天(00:0000后)更新一次，更新策略为：
-由today(bitmap)(全零初始化)更新触发，
-每当bitmap1全零初始化后，产生了bitmap1_old(旧bitmap1).
-由bitmap1_old合并(所有元素对应或运算)入bitmap0_new, 
-bitmap0_new由硬盘里持久化存储的历史所有天(不含刚成为的最老的一天)的bitmap和(所有元素或)而成。
+bitmap0(history)每天(00:0000后)更新一次，更新策略为：
 
-bitmap0_new替换成为新的bitmap0.
+bitmap1(today) rename 为 history_0 且并入 history 同时初始化一个新的bitmap1(today)
+不使用持久化版本为（history_0, history_1, history_2 rename 命名+1处理后）
+先从持久化的file中依次取出 history_1, history_2（空出history_0命名）并set入redis,
+且依次 bitop or 特征并入 history
 
 由此带来的使用上的变化：
 1.新来一个feature，exist现在需要在bitmap0和bitmap1中同时判断，
