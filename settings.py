@@ -5,9 +5,14 @@
 # Email : trumanhe0@gmail.com
 # Date  : 2020/5/15
 
+import os
 import redis
+import logging
 
 """ Redis连接配置 filter bitmap参数设置等 基本所有(默认)设置均在此文件中定义"""
+
+PROJECT_ROOT = os.path.abspath(os.path.dirname(__file__))
+
 
 # 指定redis数据库的连接参数
 redis_url = ''
@@ -40,3 +45,20 @@ history = "history"
 # 过期时间(单位：天)，默认为零，代表不采用过期策略。
 # expire days(in days), default as 0, means not adopt expire strategy.
 expire_days = 3
+
+# 日志相关设置
+
+LogLevel = logging.DEBUG
+
+LogFile = os.path.join(PROJECT_ROOT, './log/', 'filter.log')
+
+if __name__ == '__main__':
+    print(PROJECT_ROOT, LogFile)
+    logging.basicConfig(level=LogLevel, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", filename=LogFile,filemode='a')
+    logger = logging.getLogger('test')
+    logger = logging.LoggerAdapter(logger, {'user': 'user0'})
+    logger.info("First log for test!")
+    try:
+        result = 10 / 0  # 此处执行一条非法的语法
+    except Exception:
+        logger.error('Error content', exc_info=True)

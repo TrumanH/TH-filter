@@ -2,13 +2,17 @@
 # @Time    : 2019/1/9 10:52
 # @Author  : Truman He
 
-"""Some are invoke from scrapy.utils.request"""
+""" Some are invoke from scrapy.utils.request
+    一些引用自 scrapy.utils.request
+    主要是 从request生成指纹，编码转换等
+"""
 
 import six
 import hashlib 
 import weakref
 
 _fingerprint_cache = weakref.WeakKeyDictionary()
+
 
 def request_fingerprint(request, include_headers=None):
     """
@@ -54,7 +58,8 @@ def request_fingerprint(request, include_headers=None):
                         fp.update(v)
         cache[include_headers] = fp.hexdigest()
     return cache[include_headers]
-    
+
+
 def to_bytes(text, encoding=None, errors='strict'):
     """Return the binary representation of ``text``. If ``text``
     is already a bytes object, return it as-is."""
@@ -67,6 +72,16 @@ def to_bytes(text, encoding=None, errors='strict'):
         encoding = 'utf-8'
     return text.encode(encoding, errors)
 
+
+## todo: finish method: to_unicode
+def to_unicode(string, encoding=None, errors='strict'):
+    ret = ''
+    for v in string:
+        ret = ret + hex(ord(v)).upper().replace('0X', '\\u')
+    return ret
+# print(to_unicode("中国"))   eg: 'abc' --> '\\u61\\u62\\u63'
+
+
 def to_native_str(text, encoding=None, errors='strict'):
     """ Return str representation of ``text``
     (bytes in Python 2.x and unicode in Python 3.x). """
@@ -75,3 +90,4 @@ def to_native_str(text, encoding=None, errors='strict'):
     else:
         return to_unicode(text, encoding, errors)
 
+# to_unicode(text, encoding, errors)
