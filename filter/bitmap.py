@@ -4,19 +4,22 @@
 # Author: Truman He
 # Date  : 2020/5/15
 
+# import redis
 import logging
 from connection import get_redis, params
-# from .main import Filter
-
+from filter import Filter
+# from functools import update_wrapper
+from settings import FILTER_BIT, FILTER_HASH_NUMBER
 
 # tod:  consider to add compress logic, add more safety process to catch exception ?
 #  bitmap 所有主要操作（考虑后面将filter集成进来然后迁移至主模块中？）：生成，持久化到本地保存，获取等
+# Contains all bitmap related operations
+
 
 class Bitmap(object):
-    def __init__(self):
-        self.redis = get_redis(**params)
-        # self.logger = from_log() # 继承引入log 功能，并初始化到logger中
-        # 通过继承引入 Filter 功能，作为主要工作类？
+    def __init__(self, get_redis_func=get_redis, redis_params=params):
+        self.redis = get_redis_func(**redis_params)
+        # todo: self.logger = self.from_log() # 通过继承引入log 功能，并初始化到logger
 
     # 生成新的 bitmap
     def genarateBitmap(self, key, content, expire_time=None):
@@ -75,20 +78,30 @@ class Bitmap(object):
             print(e)
             return False
 
+    # @classmethod
+    def as_filter(self, key, bit=FILTER_BIT, hash_number=FILTER_HASH_NUMBER):
+        """
+        Generate a new filter from key name
+        :param key:
+        :param bit:
+        :param hash_number:
+        :return:
+        """
+        _filter = Filter.from_filter(self.redis, key, bit, hash_number)
+        return _filter
+
 
 # bellow for test
 if __name__ == '__main__':
     map = Bitmap()
     with open("./file0", "w") as f:
         f.write("just a test")
+    map.redis.set("bitmap0", "test")
     print(map.getBitmap("bitmap0"))  # Not exist
     map.saveBitmap("bitmap0", "./file0")  # storage into local file
-
-
-
-    
-    
+    new_filter = map.as_filter(key="bitmap0", bit=6, hash_number=4)
+    new_filter.insert("content")
+    print(map.getBitmap("bitmap0"))
     
 
-
-
+# so far so good  -- 2020/7/5
