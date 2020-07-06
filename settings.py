@@ -47,7 +47,7 @@ history = "history"
 expire_days = 3
 
 # 日志相关设置
-
+# 设置日志等级，从低到高依次为： DEBUG, INFO, WARNING, ERROR, CRITICAL
 LogLevel = logging.DEBUG
 
 LogFile = os.path.join(PROJECT_ROOT, './log/', 'filter.log')
@@ -62,3 +62,5 @@ if __name__ == '__main__':
         result = 10 / 0  # 此处执行一条非法的语法
     except Exception:
         logger.error('Error content', exc_info=True)
+
+    # so far so good --2020/7/6

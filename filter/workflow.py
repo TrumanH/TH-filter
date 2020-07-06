@@ -5,7 +5,7 @@
 # Date  : 2020/5/15
 
 """
-最上层的工作流程（过期策略），详细逻辑可见README.md
+上层的工作流程（过期策略），详细逻辑可见README.md
 """
 
 import schedule

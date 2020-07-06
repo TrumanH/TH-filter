@@ -66,8 +66,8 @@ class Filter(object):
         :param hash_number:
         :return:
         """
-        filter = cls(server, key, bit, hash_number)
-        return filter
+        _filter = cls(server, key, bit, hash_number)
+        return _filter
 
     def exists(self, value):
         """
