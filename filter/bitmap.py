@@ -4,17 +4,14 @@
 # Author: Truman He
 # Date  : 2020/5/15
 
-# import redis
 import logging
 from connection import get_redis, params
 from filter import Filter
-# from functools import update_wrapper
 from settings import FILTER_BIT, FILTER_HASH_NUMBER
 from filter.log import Logger
 
 
-# tod:  consider to add compress logic, add more safety process to catch exception ?
-#  bitmap 所有主要操作（考虑后面将filter集成进来然后迁移至主模块中？）：生成，持久化到本地保存，获取等
+# 提供替他Filter/Logger选择机会
 # Contains all bitmap related operations
 
 
@@ -35,7 +32,7 @@ class Bitmap(object):
     def log(self, message, level = logging.DEBUG, **kw):
         self.logger.log(level, message, **kw)
 
-    def genarateBitmap(self, key, content, expire_time=None):
+    def generateBitmap(self, key, content, expire_time=None):
         """
         Genarate a new Bitmap with given contents
         :param key: str, key name .eg: "key_name0"
@@ -66,26 +63,18 @@ class Bitmap(object):
             print(e)
             return False
 
-    def getBitmap(self, key):
-        """
-        Get bitmap from Redis with given key name
-        :param key: key name, str
-        :return: content of key
-        """
-        return self.redis.get(name=key)
-
     # Get bitmap from local file and set into redis
-    def getBitmapFromLocal(self, local_file_name):
+    def generateBitmapFromLocal(self, key_name, local_file_name):
         """
         Get bitmap from local file and set it into redis
-        :param redis: redis client instance
-        :param local_file_name:  local file name
+        :param key_name: key name of bitmap
+        :param local_file_name:  local file
         :return:
         """
         try:
             with open(local_file_name, 'r') as f:
                 content = f.read()
-            self.redis.set(local_file_name, content)
+            self.redis.set(key_name, content)
             return True
         except Exception as e:
             print(e)
@@ -109,12 +98,15 @@ if __name__ == '__main__':
     with open("./file0", "w") as f:
         f.write("just a test")
     map.redis.set("bitmap0", "test")
-    print(map.getBitmap("bitmap0"))  # Not exist
+    print(map.getBitmap("bitmap0"))  # If not exist？
     map.saveBitmap("bitmap0", "./file0")  # storage into local file
     map.logger.info("Storage into local file: bitmap0")
-    new_filter = map.as_filter(key="bitmap0", bit=6, hash_number=4)
-    new_filter.insert("content")
-    print(map.getBitmap("bitmap0"))
+    new_filter = map.as_filter(key="bitmap0", bit=6, hash_number=4)  # 根据传入filtercls转换成对应Filter
+    output = new_filter.output("content")
+    print(output)
+    new_filter.insert("content")   # filter 操作
+    res = new_filter.exists("content")
+    print(res)
     
 
 # so far so good  -- 2020/7/6

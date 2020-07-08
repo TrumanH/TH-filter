@@ -6,6 +6,7 @@
 
 """
 上层的工作流程（过期策略），详细逻辑可见README.md
+todo: 底层工具类(Bitmap,Filter,Logger)基本完成，仅剩 最上层的工作流(面向过程POP,函数式FP or OOP类包装?) 和日志的具体执行。 --2020/7/8
 """
 
 import schedule
