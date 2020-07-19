@@ -6,12 +6,13 @@
 
 """
 上层的工作流程（过期策略），详细逻辑可见README.md
-todo: 底层工具类(Bitmap,Filter,Logger)基本完成，仅剩: 最上层的工作流(面向过程POP,函数式FP or OOP类包装?) 和日志的具体执行。 --2020/7/8
+: 底层工具类(Bitmap,Filter,Logger)基本完成，仅剩: 最上层的工作流(面向过程POP,函数式FP or OOP类包装?) 和日志的具体执行。 --2020/7/8
+上层的工作流已由 filter.scheme中 Scheme 类完成。有进一步优化空间，下一步，完善日志及优化   -- 2020/7/19
 """
 
 import schedule
 from connection import get_redis, params
-from settings import today, history, expire_days  # "today", "history", 3
+from settings import today, history, Expire_days  # "today", "history", 3
 
 # 根据settings 中的连接参数建立redis连接 db0
 redis = get_redis(**params)
@@ -30,7 +31,7 @@ def initialize():
     print("keynames", today, history)
     redis.set(today, "")   # redis.setbit(today, 0, 0) # 在已存在的情况下更安全，不破坏
     redis.set(history, "")  # redis.setbit(history, 0, 0)
-    for i in range(expire_days):
+    for i in range(Expire_days):
         # ex:过期时间(秒),px:过期时间(毫秒);nx:只在键不存在时才对键进行设置操作，默认false;px:只在键已经存在时才对键进行设置操作，默认false
         redis.set(history+"_"+str(i), "", ex=None, px=None, nx=False, xx=False)
 
@@ -46,13 +47,13 @@ def daily_transfer():
     :return:
     """
     # 一天前变为2天前，2天前变为3天前,逆序操作...
-    historys = [history+"_"+str(i) for i in list(range(expire_days))[::-1]]  # history_0, history_1, history_2...
-    for i in list(range(expire_days-1))[::-1]:  # 1,0
+    historys = [history+"_"+str(i) for i in list(range(Expire_days))[::-1]]  # history_0, history_1, history_2...
+    for i in list(range(Expire_days-1))[::-1]:  # 1,0
         redis.rename(historys[i], historys[i+1])  # 1->2, 0->1
         # 初步合并出 history_new, 后面再将history_0 合并进来
         redis.bitop("OR", history+"_new", historys[i+1])
 
-    # todo:或者省内存占用改为从硬盘中直接加载2天前,3天前... persist.getBitmap
+    # :或者省内存占用改为从硬盘中直接加载2天前,3天前... persist.getBitmap
 
     # 今天的复制为一天前
     redis.rename(today, history+"_0")
@@ -61,7 +62,7 @@ def daily_transfer():
     redis.bitop("OR", history+"_new", history+"_0")  # 将最新的history_0 合并进history_new
     redis.rename(history+"_new", history)   # 新的history替换掉旧的
 
-    # todo: persist.saveBitmap将内存中history_0,history_1...硬盘持久化(+1更名)存储为 history_1,history_2...?
+    # : persist.saveBitmap将内存中history_0,history_1...硬盘持久化(+1更名)存储为 history_1,history_2...?
     # 实际上只用将内存中history_0 持久化到硬盘中为history_1 (之前先将硬盘中history_1,history_2等全部+1更名)
     # 然后从redis 中删除history_0,history_1...
 
@@ -75,7 +76,7 @@ store the result in ``dest``.
 # for test
 if __name__ == '__main__':
     # 测试 initailze函数
-    initailize()
+    initialize()
     redis.setbit(history+"_1", 1, 1)
     L = []
     history is not None and L.append(history+"_new")
