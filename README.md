@@ -94,3 +94,9 @@ history_1
 history_2   
 histroy_3
 ...
+
+文件始终仅存
+history_1,
+history_2,   
+histroy_3,
+...

@@ -44,13 +44,16 @@ history = "history"
 
 # 过期时间(单位：天)，默认为零，代表不采用过期策略。
 # expire days(in days), default as 0, means not adopt expire strategy.
-expire_days = 3
+Expire_days = 3
 
 # 日志相关设置
 # 设置日志等级，从低到高依次为： DEBUG, INFO, WARNING, ERROR, CRITICAL
 LogLevel = logging.DEBUG
 
 LogFile = os.path.join(PROJECT_ROOT, './log/', 'filter.log')
+
+# 本地bitmap文件存储文件夹
+DirectoryOfLocalFile = "D://BaiduNetdiskDownload//temp"
 
 if __name__ == '__main__':
     print(PROJECT_ROOT, LogFile)

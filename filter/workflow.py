@@ -6,7 +6,7 @@
 
 """
 上层的工作流程（过期策略），详细逻辑可见README.md
-todo: 底层工具类(Bitmap,Filter,Logger)基本完成，仅剩 最上层的工作流(面向过程POP,函数式FP or OOP类包装?) 和日志的具体执行。 --2020/7/8
+todo: 底层工具类(Bitmap,Filter,Logger)基本完成，仅剩: 最上层的工作流(面向过程POP,函数式FP or OOP类包装?) 和日志的具体执行。 --2020/7/8
 """
 
 import schedule
@@ -17,11 +17,11 @@ from settings import today, history, expire_days  # "today", "history", 3
 redis = get_redis(**params)
 
 
-def workflow():
+def sched_transfer():
     schedule.every().day.at("00:00").do(daily_transfer)
 
 
-def initailize():
+def initialize():
     """
     初始化函数,如expire_days为3天,则：
     today, history  # setbit
@@ -33,6 +33,7 @@ def initailize():
     for i in range(expire_days):
         # ex:过期时间(秒),px:过期时间(毫秒);nx:只在键不存在时才对键进行设置操作，默认false;px:只在键已经存在时才对键进行设置操作，默认false
         redis.set(history+"_"+str(i), "", ex=None, px=None, nx=False, xx=False)
+
     # for i in range(expire_days):
     #     redis.setbit(history+"_"+str(i), 0, 0)
 

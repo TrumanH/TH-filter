@@ -58,7 +58,7 @@ class TestBitmap(unittest.TestCase):
 
     def test_generateBitmapFromLocal_05(self):
         bitmap = Bitmap(Filter)
-        with open("./file0.txt", mode="wb") as f:
+        with open("./file0", mode="wb") as f:
             f.write(b"content of file0.")
 
         bitmap.generateBitmapFromLocal(key_name="bitmapOfFile0", local_file_name="./file0.txt")

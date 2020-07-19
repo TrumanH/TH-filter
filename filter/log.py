@@ -10,11 +10,13 @@ import settings
 from importlib import import_module
 import logging
 
+
+# 基础默认设置
 logging.basicConfig(level=logging.DEBUG,
-                    format='%(asctime)s - %(name)-s - %(levelname)-s - %(message)s',
-                    datefmt='%m-%d %H:%M',
+                    format='glob: %(asctime)s - %(name)-s - %(levelname)-s - %(message)s',
+                    datefmt='%Y-%m-%d %H:%M',
                     filename=settings.LogFile,
-                    filemode='a'  # 追加模式，'w' 则覆盖写
+                    filemode='a',  # 追加模式，'w' 则覆盖写
                     )
 
 
@@ -24,23 +26,6 @@ class Logger(object):
         self.frozen = False
         self.attributes = {}
         self.setmodule("settings")
-
-        # 用于写入文件
-        print("log lever: {}, log file: {}".format(self.attributes["LogLevel"], self.attributes["LogFile"]))
-        fh = logging.FileHandler(self.attributes["LogFile"])  # log_file为日志文件路径，eg: './filter.log''
-        fh.setLevel(self.attributes["LogLevel"])
-
-        # 用于输出到控制台
-        console_handler = logging.StreamHandler()
-        # consoleHandler.setLevel(self.attributes["LogLevel"])
-        console_handler.setLevel(logging.INFO)  # 控制台默认为 INFO 等级
-        # 定义输出格式
-        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-        fh.setFormatter(formatter)
-        console_handler.setFormatter(formatter)
-        # 给logger 添加handler
-        self.logger.addHandler(fh)
-        self.logger.addHandler(console_handler)
 
     def get_logger(self):
         return self.logger
@@ -76,7 +61,6 @@ class Logger(object):
 if __name__ == '__main__':
     l = Logger.from_logger("test")
     logger = l.get_logger()
-    logger.setLevel(logging.DEBUG)
     logger.debug("Just a test--2020/7/6")
     # logger.warn("why")
     logger.info("info")

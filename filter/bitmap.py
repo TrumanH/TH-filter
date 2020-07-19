@@ -11,7 +11,7 @@ from settings import FILTER_BIT, FILTER_HASH_NUMBER
 from filter.log import Logger
 
 
-# 提供替他Filter/Logger选择机会
+# 提供其它Filter/Logger选择机会
 # Contains all bitmap related operations
 
 
@@ -25,14 +25,41 @@ class Bitmap(object):
 
     @property
     def logger(self):
+        """self.logger """
         logger = Logger.from_logger("bitmap").get_logger()
         return logger
         # return logging.LoggerAdapter(logger, {"project": self})
 
     def log(self, message, level = logging.DEBUG, **kw):
-        self.logger.log(level, message, **kw)
+        """log 为自定义（推荐） 同时会有定制handler输出到控制台等， self.logger 则为基础全局收集，仅输出到文件"""
+        # 定义输出格式
+        formatter = logging.Formatter('console: %(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
-    def generateBitmap(self, key, content, expire_time=None):
+        """
+        # 另外单独一份仅用于写入文件, 先要(用函数)从模块导入设置参数 到self.attributes
+        print("log lever: {}, log file: {}".format(self.attributes["LogLevel"], self.attributes["LogFile"]))
+        fh = logging.FileHandler(self.attributes["LogFile"])  # log_file为日志文件路径，eg: './filter.log''
+        fh.setLevel(self.attributes["LogLevel"])
+        fh.setFormatter(formatter)
+        self.logger.addHandler(fh)
+        self.logger.removeHandler(fh)
+        """
+
+        # 同时用于输出到控制台
+        console_handler = logging.StreamHandler()
+        # consoleHandler.setLevel(self.attributes["LogLevel"])
+        console_handler.setLevel(logging.INFO)  # 控制台默认为 INFO 等级
+        console_handler.setFormatter(formatter)
+
+        # 给logger 添加handler 应用生效
+
+        self.logger.addHandler(console_handler)
+        self.logger.log(level, message, **kw)
+        # 记录完后记得删除handler
+        self.logger.removeHandler(console_handler)
+
+    # 没用
+    def generateBitmap(self, key, content="", expire_time=None):
         """
         Genarate a new Bitmap with given contents
         :param key: str, key name .eg: "key_name0"
@@ -41,7 +68,7 @@ class Bitmap(object):
         :return: key_name if success, Exception if exist.
         """
         try:
-            self.redis.set(name=key, value=content,ex=expire_time)
+            self.redis.set(name=key, value=content, nx=True, ex=expire_time)
         except Exception as e:
             print(e)
 
@@ -98,7 +125,6 @@ if __name__ == '__main__':
     with open("./file0", "w") as f:
         f.write("just a test")
     map.redis.set("bitmap0", "test")
-    print(map.getBitmap("bitmap0"))  # If not exist？
     map.saveBitmap("bitmap0", "./file0")  # storage into local file
     map.logger.info("Storage into local file: bitmap0")
     new_filter = map.as_filter(key="bitmap0", bit=6, hash_number=4)  # 根据传入filtercls转换成对应Filter
@@ -107,6 +133,8 @@ if __name__ == '__main__':
     new_filter.insert("content")   # filter 操作
     res = new_filter.exists("content")
     print(res)
+    map.log("log: info test", level=logging.INFO)
+    map.log("log: warn test", level=logging.WARNING)
     
 
-# so far so good  -- 2020/7/6
+# so far so good  -- 2020/7/19
