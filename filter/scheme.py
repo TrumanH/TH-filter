@@ -39,17 +39,22 @@ class Scheme():
             self.redis.set(history + "_" + str(i), "", ex=None, px=None, nx=True, xx=False)     # 不存在时才对键进行设置操作
         """
         if Expire_days:
-            #schedule.every().day.at("00:00").do(self.transfer)  # productive
+            thread = Thread(target=self.cycle_init)
+            print("The cycle job thread:", thread)
+            thread.start()
+            '''
             schedule.every().minute.do(lambda:print("test transfer")) # only for test
             while True:
                 schedule.run_pending()
-
+            '''
         self.today_filter = self.bitmap.as_filter(today)
         self.history_filter = self.bitmap.as_filter(history)
 
-    # def cycle_init(self):
-    #     print("a thread to execute cycle job")
-    #     thread = Thread()
+    def cycle_init(self):
+        print("In cycle_init: Initialize a new thread to execute cycle job.")
+        schedule.every().day.at("00:00").do(self.transfer)
+        while True:
+            schedule.run_pending()
 
     def transfer(self):
         """ can be optimize"""
