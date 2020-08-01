@@ -51,11 +51,11 @@ class Bitmap(object):
         console_handler.setLevel(logging.INFO)  # 控制台默认为 INFO 等级
         console_handler.setFormatter(formatter)
 
-        # 给logger 添加handler 应用生效
+        # 给logger add handler ,attach handler to logger.
 
         self.logger.addHandler(console_handler)
         self.logger.log(level, message, **kw)
-        # 记录完后记得删除handler
+        # remember to delete handler after use it
         self.logger.removeHandler(console_handler)
 
     # 没用
@@ -69,8 +69,10 @@ class Bitmap(object):
         """
         try:
             self.redis.set(name=key, value=content, nx=True, ex=expire_time)
+            self.logger.info("Generate a new bitmap: {}".format(key))
         except Exception as e:
-            print(e)
+            # print(e)
+            self.logger.error("When generate a new bitmap: {}, some thing went wrong!".format(key), e)
 
     # 持久化，存为本地文件
     def saveBitmap(self, bitmap_key_name, local_file_name):
@@ -83,11 +85,13 @@ class Bitmap(object):
         """
         try:
             content = self.redis.get(bitmap_key_name)
-            with open(local_file_name, 'w') as f:
-                f.write(content.decode())
+            with open(local_file_name, 'w') as file:
+                file.write(content.decode())
+            self.logger.info("Save bitmap '{}' into local file'{}'".format(bitmap_key_name, local_file_name))
             return True
         except Exception as e:
-            print(e)
+            # print(e)
+            self.logger.error("When bitmap '{}' into local file'{}', something went wrong!".format(bitmap_key_name, local_file_name), e)
             return False
 
     # Get bitmap from local file and set into redis
@@ -102,9 +106,11 @@ class Bitmap(object):
             with open(local_file_name, 'r') as f:
                 content = f.read()
             self.redis.set(key_name, content)
+            self.logger.info("Set in a bitmap '{}' which contents from local file '{}'".format(key_name, local_file_name))
             return True
         except Exception as e:
-            print(e)
+            # print(e)
+            self.logger.error("When setting in a bitmap '{}' which contents from local '{}', something went wrong".format(key_name, local_file_name), e)
             return False
 
     def as_filter(self, key, bit=FILTER_BIT, hash_number=FILTER_HASH_NUMBER):
@@ -115,8 +121,12 @@ class Bitmap(object):
         :param hash_number:
         :return:
         """
-        _filter = self.filtercls.from_filter(self.redis, key, bit, hash_number)
-        return _filter
+        try:
+            _filter = self.filtercls.from_filter(self.redis, key, bit, hash_number)
+            self.logger.info("Generate a new filter from key name:'{}'".format(key))
+            return _filter
+        except Exception as e:
+            self.logger.error("When Generating a new filter from key name:'{}', something went wrong!".format(key), e)
 
 
 # bellow for test
@@ -137,4 +147,4 @@ if __name__ == '__main__':
     map.log("log: warn test", level=logging.WARNING)
     
 
-# so far so good  -- 2020/7/19
+# Add log operations, modified and tested, so far so good  -- 2020/8/1

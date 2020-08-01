@@ -52,7 +52,7 @@ LogLevel = logging.DEBUG
 
 LogFile = os.path.join(PROJECT_ROOT, './log/', 'filter.log')
 
-# 本地bitmap文件存储文件夹
+# 本地bitmap文件存储文件夹 to storage transfer local file
 DirectoryOfLocalFile = "D://BaiduNetdiskDownload//temp"
 
 if __name__ == '__main__':
